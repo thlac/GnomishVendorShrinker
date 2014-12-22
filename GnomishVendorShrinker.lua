@@ -124,7 +124,7 @@ local function GetAltCurrencyFrame(frame)
 	f.icon:SetWidth(ICONSIZE) f.icon:SetHeight(ICONSIZE)
 	f.icon:SetPoint("RIGHT")
 
-	f.text = f:CreateFontString(nil, nil, "NumberFontNormalSmall")
+	f.text = f:CreateFontString(nil, nil, "GameFontNormalSmall")
 	f.text:SetPoint("RIGHT", f.icon, "LEFT", -GAP/2, 0)
 
 	f.SetValue = SetValue
@@ -203,7 +203,7 @@ for i=1,NUMROWS do
 	popout.SplitStack = PopoutSplitStack
 	row.popout = popout
 
-	local ItemPrice = row:CreateFontString(nil, nil, "NumberFontNormal")
+	local ItemPrice = row:CreateFontString(nil, nil, "GameFontNormal")
 	ItemPrice:SetPoint('RIGHT', popout, "LEFT", -2, 0)
 	row.ItemPrice = ItemPrice
 
