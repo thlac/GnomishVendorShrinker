@@ -248,14 +248,11 @@ local function ShowMerchantItem(row, i)
 	if link then
 		local name, link2, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(link)
 		color = quality_colors[quality]
-
-		if class == RECIPE then
-			if ns.knowns[link] then
-				color = quality_colors[0]
-			else
-				row.backdrop:SetGradientAlpha("HORIZONTAL", unpack(grads[quality]))
-				row.backdrop:Show()
-			end
+		if ns.knowns[link] then
+			color = quality_colors[0]
+		else
+			row.backdrop:SetGradientAlpha("HORIZONTAL", unpack(grads[quality]))
+			row.backdrop:Show()
 		end
 	end
 
