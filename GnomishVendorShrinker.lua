@@ -103,7 +103,7 @@ local function SetValue(self, text, icon, link)
 	local id = link and link:match("item:(%d+)")
 	self.link, self.index, self.itemIndex = nil
 	if id then self.link = link end
-	if id and (GetItemCount(id) or 0) < text or link and not id and (GetCurencyCount(link) or 0) < text then
+	if id and (GetItemCount(id, true) or 0) < text or link and not id and (GetCurencyCount(link) or 0) < text then
 		color = "|cffff9999"
 	end
 	self.text:SetText(color..text)
@@ -246,23 +246,27 @@ local function ShowMerchantItem(row, i)
 	local link = GetMerchantItemLink(i)
 	local color = quality_colors.default
 	row.backdrop:Hide()
+
+	if not isUsable then
+		row.backdrop:SetGradientAlpha("HORIZONTAL", unpack(grads.red))
+		row.backdrop:Show()
+	end
+
 	if link then
 		local name, link2, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(link)
+		local id = ns.ids[link]
+		local is_heirloom = ns.is_six_one and C_Heirloom.IsItemHeirloom(id)
 		color = quality_colors[quality]
 
-		if class == RECIPE or texture:lower():match(GARRISON_ICON) then
+		if is_heirloom or class == RECIPE or texture:lower():match(GARRISON_ICON) then
 			if ns.knowns[link] then
 				color = quality_colors[0]
+				row.backdrop:Hide()
 			else
 				row.backdrop:SetGradientAlpha("HORIZONTAL", unpack(grads[quality]))
 				row.backdrop:Show()
 			end
 		end
-	end
-
-	if not isUsable then
-		row.backdrop:SetGradientAlpha("HORIZONTAL", unpack(grads.red))
-		row.backdrop:Show()
 	end
 
 	row.icon:SetTexture(itemTexture)
@@ -315,6 +319,9 @@ local function Refresh()
 		rows[i]:Hide()
 	end
 end
+GVS.CURRENCY_DISPLAY_UPDATE = Refresh
+GVS.BAG_UPDATE = Refresh
+GVS.MERCHANT_UPDATE = Refresh
 
 
 local editbox = CreateFrame('EditBox', nil, GVS)
@@ -400,8 +407,17 @@ GVS:SetScript("OnShow", function(self, noreset)
 	scrollbar:SetMinMaxValues(0, max)
 	scrollbar:SetValue(noreset and math.min(scrollbar:GetValue(), max) or 0)
 	Refresh()
+
+	GVS:RegisterEvent("BAG_UPDATE")
+	GVS:RegisterEvent("MERCHANT_UPDATE")
+	GVS:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
 end)
-GVS:SetScript("OnHide", function() if StackSplitFrame:IsVisible() then StackSplitFrame:Hide() end end)
+GVS:SetScript("OnHide", function()
+	GVS:UnregisterEvent("BAG_UPDATE")
+	GVS:UnregisterEvent("MERCHANT_UPDATE")
+	GVS:UnregisterEvent("CURRENCY_DISPLAY_UPDATE")
+	if StackSplitFrame:IsVisible() then StackSplitFrame:Hide() end
+end)
 
 
 -- Reanchor the buyback button, it acts weird when switching tabs otherwise...
